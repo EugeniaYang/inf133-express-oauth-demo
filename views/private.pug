@@ -1,0 +1,19 @@
+//- FEATURE: blocked/allowed cookie-gate states from routes/middleware.js.
+extends layout
+
+block content
+  h1= title
+  p Demo only: this cookie is a marker, not verified identity or a real login session.
+  //- Middleware supplies demoUser only after its marker-cookie check calls next().
+  if demoUser
+    h2 Middleware called next()
+    p The route handler can now respond. The demo name is #{demoUser}.
+    form(action="/middleware/logout", method="post")
+      button(type="submit") Clear cookie and try again
+  else
+    h2 401: middleware stopped the request
+    p No demo_user cookie was present, so the final route handler did not run.
+    form(action="/middleware/login", method="post")
+      label(for="demo-name") Demo name
+      input#demo-name(name="name", value="Alice", required, maxlength="40")
+      button(type="submit") Set demo cookie and retry

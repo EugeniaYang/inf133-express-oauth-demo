@@ -1,0 +1,235 @@
+//- FEATURE: the home page follows the main slide sequence, then the Express appendix.
+extends layout
+
+mixin codeFiles(ids)
+  p.code-map
+    span.code-map-label Code to open:
+    each id in ids
+      a.source-link(href='/source/' + id)= sourceFiles[id].label
+
+block content
+  div.lecture-home
+    header.lecture-header
+      p.lecture-eyebrow INF 133 · LECTURE 9
+      h1 Server-side development, authentication & authorization
+      p.lecture-intro Follow the slides, show the result, then open the code that makes it happen.
+      p.lecture-note Slide references use the shared PDF. Match by title if your edited Keynote numbering differs.
+      nav.lecture-nav(aria-label="Lecture sections")
+        a(href="#server") 1. Server-side
+        a(href="#identity") 2. Identity & permissions
+        a(href="#oauth") 3. OAuth
+        a(href="#openid") 4. OpenID Connect
+        a(href="#express") Express lab
+        a(href="#files") File map
+
+    section#server.lecture-stage
+      p.slide-tag MAIN LECTURE · SLIDES 7–21
+      h2 1. Where is the JavaScript running?
+      p.goal Show a browser making a request and a Node process sending the response.
+      div.demo-entry
+        h3 Node Hello World
+        p Run the bundled Node example in a separate terminal from this project's root:
+        pre.command npm run demo:node
+        p
+          a.demo-link(href="http://127.0.0.1:8080") Open Node demo · port 8080 →
+        p Point out Hello, console in the terminal and Hello World in the browser. Use slides 17–18 to compare server-side and client-side execution.
+        +codeFiles(['node-hello'])
+      details
+        summary Optional extension: read the student JSON file (slides 81–82)
+        p Stop the previous Node example with Ctrl+C, then run this command from the project root. Both examples use port 8080; keep only one running there.
+        pre.command npm run demo:students
+        p Refresh the same Node demo URL to see the comma-separated names.
+        +codeFiles(['node-starter', 'node-students', 'node-data'])
+      p.transition Next: if the server can return student grades, how should it decide who may see or change them?
+
+    section#identity.lecture-stage
+      p.slide-tag MAIN LECTURE · SLIDES 22–32
+      h2 2. Who are you, and what may you do?
+      p.goal Distinguish authentication, authorization, and multi-factor authentication before introducing third-party access.
+      ol.teaching-steps
+        li Use grades: a student may view their own grades; staff may have permission to update them.
+        li Run the MFA PollEv question and discuss why two knowledge-based checks are not two different factors.
+        li Ask: should another app receive your account password just to read some of your data?
+      p.discussion-label Slides + discussion / PollEv. No separate login demo is required here.
+      p.transition Next: OAuth lets a user grant limited access to a third-party application.
+
+    section#oauth.lecture-stage
+      p.slide-tag MAIN LECTURE · SLIDES 33–60
+      h2 3. Follow one complete OAuth flow
+      p.goal Watch consent become a code, then tokens, then access to protected data.
+      p
+        a.demo-link(href="/oauth") Open OAuth simulation →
+      p This is a local simulation with fictional accounts and data. It does not connect to Spotify.
+      div.table-scroll
+        table.lecture-table
+          thead
+            tr
+              th(scope="col") Slide topic
+              th(scope="col") What to do
+              th(scope="col") Code to open
+          tbody
+            tr
+              td 1. Authorize · 39–40
+              td Connect → Allow access
+              td
+                a(href="/source/oauth-client") oauth/client.js
+                br
+                code GET /connect
+            tr
+              td Callback · 54, 69
+              td Inspect the returned code and callback URL
+              td
+                a(href="/source/oauth-client") oauth/client.js
+                br
+                code GET /callback
+            tr
+              td 2. Get tokens · 41–42
+              td Exchange code for tokens
+              td
+                a(href="/source/oauth-client") oauth/client.js
+                br
+                code POST /exchange + requestTokens()
+            tr
+              td 3. Call the API · 43–45
+              td Request profile or playlists → 200
+              td
+                a(href="/source/oauth-client") oauth/client.js
+                br
+                code POST /api
+            tr
+              td 4. Refresh · 46–47
+              td Expire → request → 401 → refresh → request → 200
+              td
+                a(href="/source/oauth-client") oauth/client.js
+                br
+                code POST /refresh
+      p.source-hint Start with oauth/client.js. Open the mock provider only to explain how codes and tokens are issued or how scope checks work.
+      +codeFiles(['oauth-client', 'oauth-provider', 'oauth-view', 'oauth-consent'])
+      details
+        summary Optional: deeper OAuth implementation (slides 65–79)
+        p Compare the authorization query, callback code, token POST body, Basic client authentication, and Bearer header with the request log in the simulation.
+        +codeFiles(['oauth-client', 'oauth-provider', 'oauth-config'])
+      p.transition Ask who communicates on each arrow: browser, client backend, authorization server, or resource server.
+
+    section#openid.lecture-stage
+      p.slide-tag MAIN LECTURE · SLIDES 61–63
+      h2 4. Connect authorization back to identity
+      p.goal Explain how OpenID Connect adds identity information for sign-in.
+      p Use a “Sign in with Google” button as the example. Recap the difference between proving identity and granting access to data.
+      p.discussion-label Slides + discussion. The OAuth simulation above does not implement OpenID Connect login.
+      p.transition Recap the learning goals and take questions. Use the Express lab below for code details as time permits.
+
+    section#express.lecture-stage
+      p.slide-tag CODE APPENDIX · SLIDES 84–100
+      h2 Express lab: the implementation toolbox
+      p Use these examples when you reach “More on Node and Express,” or bring a short example forward when it supports the main lecture. Expand the lab to use its controls.
+      details.express-lab
+        summary Open Express examples and source files
+        div.lab-topic
+          h3 A. A minimal Express server · slides 84–85
+          p
+            a(href="/hello") Hello world
+            |  — a GET route and res.send().
+          p The standalone file uses npm run demo:hello on port 3001. /hello on this server uses routes/index.js.
+          +codeFiles(['express-hello', 'index-router'])
+
+        div.lab-topic
+          h3 B. Route by HTTP method · slide 86
+          p All buttons request /methods. The HTTP method selects the handler; PATCH reaches the all() fallback.
+          //- FEATURE: demo.js turns data-method buttons into fetch requests.
+          div.actions
+            each method in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+              button(type="button", data-method=method)= method
+          pre#method-result(aria-live="polite") Click a method to see the HTTP status and response.
+          +codeFiles(['examples-router', 'browser-js'])
+
+        div.lab-topic
+          h3 C. Read request data · slides 87, 99
+          p
+            a(href="/user/2?foo=9&course=INF133") /user/2?foo=9&course=INF133
+          p Compare params.user_id with query.foo. Then compare an HTML form body with a JSON body below.
+          h4 HTML form → express.urlencoded()
+          //- FEATURE: native submission is parsed by express.urlencoded() in app.js.
+          form(action="/echo", method="post")
+            label(for="form-name") Name
+            input#form-name(name="name", value="Alice", required)
+            label(for="form-course") Course
+            input#form-course(name="course", value="INF133", required)
+            button(type="submit") Submit form
+          h4 JSON request → express.json()
+          //- FEATURE: demo.js intercepts this form and sends JSON with fetch().
+          form#json-form
+            label(for="json-name") Name
+            input#json-name(name="name", value="Bob", required)
+            label(for="json-course") Course
+            input#json-course(name="course", value="INF133", required)
+            button(type="submit") Send JSON
+          pre#body-result(aria-live="polite") Send JSON to see req.body.
+          +codeFiles(['users-router', 'examples-router', 'app', 'browser-js'])
+
+        div.lab-topic
+          h3 D. Build a response · slide 88
+          p
+            a(href="/response") Write a response in parts
+          p Compare status(), separate write() calls, and end() with the simpler send().
+          +codeFiles(['examples-router'])
+
+        div.lab-topic
+          h3 E. Middleware and cookies · slides 89–90
+          p Inspect the terminal request log, then try the marker-cookie gate:
+          p
+            a(href="/middleware/private") Open the middleware gate
+          p No cookie → 401. Set the demo cookie → next() → handler runs. This marker does not prove identity or implement a real login session.
+          +codeFiles(['app', 'middleware-router'])
+
+        div.lab-topic
+          h3 F. Static files · slide 91
+          p
+            a(href="/welcome.html") Open public/welcome.html
+          p express.static() also serves the stylesheet and browser JavaScript used by this guide.
+          +codeFiles(['app', 'static-html', 'browser-js'])
+
+        div.lab-topic
+          h3 G. Student routes · slide 92
+          ul
+            li
+              a(href="/students/list") /students/list — all student records
+            li
+              a(href="/students/2") /students/2 — one student
+            li
+              a(href="/students/999") /students/999 — a 404 response
+          p Register /list before /:id so “list” is not interpreted as an ID.
+          +codeFiles(['students-router', 'student-helper'])
+
+        div.lab-topic
+          h3 H. Routers, Pug, and project structure · slides 93–100
+          p
+            a(href="/students") Student HTML page generated by Pug
+            = ' · '
+            a(href="/api/students") The same names as JSON
+            = ' · '
+            a(href="/users") Mounted /users router
+          p Trace app.js → router → res.render() → Pug template → HTML. Compare layout.pug with the child template's extends and block content.
+          p bin/www starts the HTTP listener; app.js configures middleware and mounted routers.
+          +codeFiles(['app', 'startup', 'users-router', 'students-router', 'pug-layout', 'pug-students'])
+
+    section#files.lecture-stage
+      p.slide-tag QUICK REFERENCE
+      h2 Which file should I open?
+      p Every link below opens the actual source. The original Node examples are bundled in examples/node so the repository works after cloning.
+      details
+        summary Browse all demo source files
+        div.table-scroll
+          table.lecture-table
+            thead
+              tr
+                th(scope="col") File
+                th(scope="col") Runs in
+                th(scope="col") Feature
+            tbody
+              each file, id in sourceFiles
+                tr
+                  td
+                    a(href='/source/' + id)= file.label
+                  td= file.runtime
+                  td= file.feature

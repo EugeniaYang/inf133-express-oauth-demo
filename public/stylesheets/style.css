@@ -1,0 +1,66 @@
+/* FEATURE: readable shared page layout and controls for classroom projection. */
+:root { font-family: system-ui, sans-serif; color: #202633; background: #f5f7fa; }
+body { margin: 0; }
+main { max-width: 850px; margin: 0 auto; padding: 32px 20px 56px; }
+h1 { font-size: 2.2rem; margin-top: 0; }
+h2 { font-size: 1.4rem; }
+p, li { line-height: 1.6; }
+a { color: #2057ad; text-underline-offset: 3px; }
+section { background: white; border: 1px solid #d5dce6; border-radius: 8px; padding: 18px 24px; margin: 20px 0; }
+section h2 { margin-top: 0; }
+li { margin: 8px 0; }
+form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input, button { font: inherit; padding: 8px 12px; border: 1px solid #8795a8; border-radius: 4px; }
+input { max-width: 100%; box-sizing: border-box; min-width: 0; }
+button { color: white; background: #2057ad; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+button:hover { background: #174080; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #ce8b00; outline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+pre { background: #eef2f7; padding: 16px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+footer { margin-top: 28px; }
+select { font: inherit; padding: 8px; max-width: 100%; }
+/* FEATURE: distinguish the simulation label, status notices, and request directions. */
+.oauth-label { font-size: .85rem; font-weight: 750; letter-spacing: .06em; color: #1d5785; }
+.oauth-note { border-left: 4px solid #6387b6; padding: 8px 16px; background: #edf2f9; }
+.oauth-notice { padding: 14px 18px; border: 1px solid #77a890; background: #eaf5ee; border-radius: 6px; }
+.oauth-direction { font-weight: 650; color: #2057ad; }
+.oauth-events { padding-left: 24px; }
+.oauth-events li { padding: 8px 0; border-bottom: 1px solid #d5dce6; }
+.oauth-events h3 { margin-bottom: 4px; }
+summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
+
+/* FEATURE: a slide-ordered lecture guide with source links beside each demo. */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 16px; }
+.lecture-header { padding: 8px 0 12px; }
+.lecture-header h1 { max-width: 27ch; line-height: 1.15; }
+.lecture-eyebrow, .slide-tag { color: #32608d; font-size: .8rem; font-weight: 750; letter-spacing: .07em; }
+.lecture-intro { font-size: 1.1rem; }
+.lecture-note { color: #59677a; font-size: .9rem; }
+.lecture-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.lecture-nav a { padding: 8px 12px; background: #e6edf7; border-radius: 5px; text-decoration: none; }
+.lecture-stage > .slide-tag { margin: 0 0 10px; }
+.goal { font-size: 1.1rem; font-weight: 550; }
+.demo-entry { margin: 22px 0; }
+.demo-link { display: inline-block; background: #2057ad; color: white; border-radius: 5px; padding: 10px 16px; text-decoration: none; }
+.demo-link:hover { background: #174080; }
+.transition { padding: 12px 0 0; margin-top: 20px; border-top: 1px solid #d5dce6; color: #4c5e75; }
+.discussion-label { color: #59677a; font-style: italic; }
+.code-map { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; }
+.code-map-label { font-size: .85rem; font-weight: 650; color: #59677a; }
+.source-link { max-width: 100%; overflow-wrap: anywhere; font-family: ui-monospace, monospace; font-size: .82rem; padding: 3px 8px; border: 1px solid #c7d5e8; border-radius: 4px; background: #f0f5fc; }
+.source-hint { border-left: 3px solid #6387b6; padding-left: 14px; }
+.table-scroll { overflow-x: auto; }
+.lecture-table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: .9rem; line-height: 1.5; }
+.lecture-table th { text-align: left; background: #eef2f7; }
+.lecture-table th, .lecture-table td { padding: 12px; border-bottom: 1px solid #d5dce6; vertical-align: top; }
+.lecture-table code { font-size: .8rem; overflow-wrap: anywhere; }
+.express-lab > summary { color: #2057ad; }
+.lab-topic { padding: 20px 0; }
+.lab-topic + .lab-topic { border-top: 1px solid #d5dce6; }
+.lab-topic h3 { margin-top: 0; }
+.source-title { font-family: ui-monospace, monospace; font-size: 1.8rem; overflow-wrap: anywhere; }
+.source-code { background: #1e293b; color: #e6edf7; font-size: .85rem; tab-size: 2; }
+.command { font-size: .95rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

@@ -1,0 +1,16 @@
+//- Slide 98: other templates extend this shared layout.
+//- FEATURE: common page title, CSS, browser JavaScript, and footer for all Pug pages.
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= title
+    link(rel="stylesheet", href="/stylesheets/style.css")
+    script(src="/javascripts/demo.js", defer)
+  body
+    main
+      //- FEATURE: each child template inserts its own block content here.
+      block content
+      footer
+        a(href="/") Demo home

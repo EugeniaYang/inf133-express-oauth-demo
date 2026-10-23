@@ -1,0 +1,33 @@
+//- FEATURE: provider-owned consent page, rendered by oauth/provider.js GET /authorize.
+//- Alice's sign-in is assumed in this simulation; this is a permission decision.
+extends layout
+
+block content
+  p.oauth-label MOCK PROVIDER · AUTHORIZATION SERVER
+  h1 Mock Music Service
+  p.oauth-note Local classroom simulation. Alice is a fictional, already-signed-in user. No real authentication or Spotify connection takes place.
+  section
+    h2 Lecture Music App requests access
+    p Acting as: Alice (fictional account)
+    p The app wants these permissions:
+    //- FEATURE: turn requested scope strings into the permission descriptions Alice sees.
+    ul
+      each scope in request.scope.split(' ')
+        li= scope === 'profile:read' ? 'Read your profile' : 'Read your playlists'
+    p This app will receive a code if you allow access. Your password is not shared with the app.
+    //- FEATURE: both buttons submit to provider.js POST /authorize.
+    //- decision=approve issues a code; decision=deny returns access_denied.
+    //- Hidden inputs carry the public authorization request parameters, not a client secret.
+    form(action="/mock-provider/authorize", method="post")
+      input(type="hidden", name="response_type", value="code")
+      input(type="hidden", name="client_id", value=request.clientId)
+      input(type="hidden", name="redirect_uri", value=request.redirectUri)
+      input(type="hidden", name="scope", value=request.scope)
+      input(type="hidden", name="state", value=request.state)
+      input(type="hidden", name="code_challenge", value=request.codeChallenge)
+      input(type="hidden", name="code_challenge_method", value="S256")
+      button(type="submit", name="decision", value="approve") Allow access
+      button(type="submit", name="decision", value="deny") Deny
+  details
+    summary Inspect the authorization request
+    pre= JSON.stringify({ client_id: request.clientId, response_type: 'code', scope: request.scope, redirect_uri: request.redirectUri, state: request.state, code_challenge_method: 'S256' }, null, 2)

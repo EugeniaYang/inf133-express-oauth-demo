@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  p.lecture-eyebrow ACTUAL SOURCE FILE
+  h1.source-title= file.label
+  p= file.feature
+  p
+    strong= 'Runs in: '
+    | #{file.runtime}
+  p
+    a(href='/#' + file.section) ← Back to this lecture section
+  p Search for FEATURE: comments to connect the code with a page, button, or request.
+  pre.source-code
+    code= source

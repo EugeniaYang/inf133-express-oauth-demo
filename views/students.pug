@@ -1,0 +1,15 @@
+//- FEATURE: student HTML page, rendered by routes/students.js GET /students.
+extends layout
+
+block content
+  h1= title
+  p There are #{students.length} students.
+  ul
+    //- FEATURE: one clickable list item per name supplied by res.render().
+    //- Each link visits the /students/:id route; the loop runs on the server.
+    each student, index in students
+      li
+        a(href='/students/' + (index + 1))= student
+  p
+    a(href="/api/students") View the same names as JSON
+  p View Page Source in the browser: you receive HTML, not a Pug template.

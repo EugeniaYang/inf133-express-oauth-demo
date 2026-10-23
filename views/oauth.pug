@@ -1,0 +1,97 @@
+//- FEATURE MAP: this is the client app's /oauth page, rendered by oauth/client.js.
+//- These comments stay in the template source and are not sent to the browser.
+extends layout
+
+block content
+  p.oauth-label LOCAL SIMULATION · NO REAL SPOTIFY CONNECTION
+  h1 OAuth 2.0, step by step
+  p You are Alice, a fictional user. Lecture Music App wants permission to read your Mock Music Service data.
+  p.oauth-note The client backend, authorization server, and resource server are separate roles implemented in this one local app. No real account or password is used.
+  if session.notice
+    p.oauth-notice(role="status")= session.notice
+  //- FEATURE: Reset → client.js POST /reset → revoke fake tokens and clear the log.
+  form(action="/oauth/reset", method="post")
+    button(type="submit") Reset this demo
+
+  //- FEATURE: Connect → client.js GET /connect → redirect to the provider's consent page.
+  section
+    h2 1. Request authorization
+    form(action="/oauth/connect", method="get")
+      label(for="oauth-scope") Ask for permission to read
+      select#oauth-scope(name="scope")
+        option(value="profile:read playlists:read") Profile and playlists
+        option(value="profile:read") Profile only (try a 403 on playlists)
+      button(type="submit") Connect Mock Music Service
+    p The browser goes to the provider's consent page. The app does not ask for Alice's password.
+
+  //- FEATURE: code and callback URL come from the provider's redirect to /oauth/callback.
+  //- Exchange submits to OUR backend; its requestTokens() calls the provider's /token.
+  section#tokens
+    h2 2. Exchange the code for tokens
+    p Code: #{session.code || session.lastCode || 'Not received yet'}
+    if session.lastCode && !session.code
+      p This code has already been exchanged and cannot be reused.
+    if session.callbackUrl
+      details
+        summary See the callback URL
+        pre= session.callbackUrl
+    form(action="/oauth/exchange", method="post")
+      button(type="submit", disabled=!session.code) Exchange code for tokens
+    p This POST is made by the backend to the authorization server. It returns access and refresh tokens.
+
+  //- FEATURE: each form posts a resource name to client.js POST /api.
+  //- That handler calls the resource server and passes apiResult back to this template.
+  section#data
+    h2 3. Use the access token to request data
+    p Access token status: #{accessStatus}
+    if session.scope
+      p Granted scopes: #{session.scope}
+    div.actions
+      form(action="/oauth/api", method="post")
+        input(type="hidden", name="resource", value="me")
+        button(type="submit") Request profile
+      form(action="/oauth/api", method="post")
+        input(type="hidden", name="resource", value="playlists")
+        button(type="submit") Request playlists
+    p Try before authorizing, after exchanging, and after expiring the access token.
+    if session.apiResult
+      p Last API response:
+      pre#oauth-api-result= 'HTTP ' + session.apiResult.status + '\n' + pretty(session.apiResult.body)
+
+  //- FEATURE: Expire is a simulation control; Refresh performs a token-endpoint POST.
+  //- Retry calls the resource API again so students can observe 401 becoming 200.
+  section#refresh
+    h2 4. Expire, refresh, and retry
+    p Current access token: #{accessStatus}
+    p Access tokens last 90 seconds in this simulation. Use the shortcut below instead of waiting.
+    div.actions
+      form(action="/oauth/expire", method="post")
+        button(type="submit", disabled=!session.accessToken) Expire access token (teaching shortcut)
+      form(action="/oauth/refresh", method="post")
+        button(type="submit", disabled=!session.refreshToken) Refresh access token
+      form(action="/oauth/api", method="post")
+        input(type="hidden", name="resource", value="me")
+        button(type="submit") Retry profile request
+    p After expiring: request profile → see 401 → refresh → request profile again → see 200.
+    p Refresh tokens are sent to the token endpoint. They cannot be used as Bearer tokens at the profile API.
+    //- FEATURE: inspect fake token values stored by the CLIENT BACKEND.
+    details
+      summary Inspect this demo's tokens
+      pre= pretty({ access_token: session.accessToken || null, refresh_token: session.refreshToken || null, scope: session.scope || null, expires_in: session.expiresIn || null })
+    p All token values shown here are fake classroom tokens. This demo also rotates its refresh token on each refresh.
+
+  //- FEATURE: client.js event() supplies the direction and details for each log item.
+  section
+    h2 Follow the requests
+    p The arrows show who is communicating. Token requests below are actual HTTP calls made by Node to the local mock provider.
+    if session.events.length
+      details
+        summary Show request log (#{session.events.length} events)
+        ol.oauth-events
+          each item in session.events
+            li
+              h3= item.title
+              p.oauth-direction= item.direction
+              pre= item.detail
+    else
+      p No requests yet. Start with Connect, or try requesting the profile without a token.
